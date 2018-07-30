@@ -1,0 +1,2 @@
+#图片验证码的有效时间，秒
+IMAGE_CODE_REDIS_EXPIRES = 60
