@@ -1,13 +1,14 @@
 from django.shortcuts import render
 
 # Create your views here.
-from rest_framework.generics import CreateAPIView
+from rest_framework import status
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
-
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 #这里必须使用这种导入方法！！！
 from .models import User
-from .serializers import CreateUserSerializer
+from .serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer
 from rest_framework.status import HTTP_201_CREATED
 
 
@@ -38,4 +39,38 @@ class MobileCountView(APIView):
 # POST /users/
 class UserView(CreateAPIView):
     serializer_class = CreateUserSerializer
+
+# 用户信息接口
+# GET /user/
+class UserDetailView(RetrieveAPIView):
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAuthenticated]
+    def get_object(self,*args,**kwargs):
+        return self.request.user
+
+#发送验证邮件接口
+# PUT /email/
+class EmailView(UpdateAPIView):
+    serializer_class = EmailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self,*args,**kwargs):
+        return self.request.user
+
+#验证邮箱链接
+#GET /emails/verification/?token=xxx
+class VerifyEmailView(APIView):
+    def get(self,request):
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'message':'缺少token'},status = status.HTTP_400_BAD_REQUEST)
+        user = User.check_verify_email_token(token)
+        if user is None:
+            return Response({'message':'链接信息无效'},status = status.HTTP_400_BAD_REQUEST)
+        else:
+            user.email_active = True
+            user.save()
+            return Response({'message': 'OK'})
+
+
 
