@@ -22,6 +22,5 @@ def send_verify_email(to_email,verify_url):
     except Exception as e:
         logger.error("发送验证码邮件[异常][ email: %s, message: %s ]" % (to_email, e))
 
-#启动worker celery -A celery_tasks.main worker --loglevel=info
 
 

@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'verifications.apps.VerificationsConfig',
     'oauth.apps.OauthConfig',
     'areas.apps.AreasConfig',
+    'goods.apps.GoodsConfig',
+    'contents.apps.ContentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -261,4 +263,12 @@ EMAIL_HOST_PASSWORD = 'ggduhmgepmcfbced'
 EMAIL_FROM = '美多商城<lihaojump@foxmail.com>'
 #加密方式，qq邮箱必须用
 EMAIL_USE_SSL = True
+
+# DRF扩展
+REST_FRAMEWORK_EXTENSIONS = {
+    # 缓存时间
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60,
+    # 缓存存储
+    'DEFAULT_USE_CACHE': 'default',
+}
 
