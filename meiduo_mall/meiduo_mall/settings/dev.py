@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'areas.apps.AreasConfig',
     'goods.apps.GoodsConfig',
     'contents.apps.ContentsConfig',
+    'pics.apps.PicsConfig',
 ]
 
 MIDDLEWARE = [
@@ -271,4 +272,13 @@ REST_FRAMEWORK_EXTENSIONS = {
     # 缓存存储
     'DEFAULT_USE_CACHE': 'default',
 }
+
+#指定FDFS系统客户端使用的配置文件的路径
+FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fastdfs/client.conf')
+#指定访问路径前段
+FDFS_URL = 'http://image.meiduo.site:8888/'
+# django文件存储
+DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
+
+
 
