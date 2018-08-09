@@ -159,6 +159,13 @@ CACHES = {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
             }
     },
+    "history": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
 #讲session信息存储在缓存中
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -228,6 +235,9 @@ REST_FRAMEWORK = {
             'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.BasicAuthentication',
         ),
+    #分页
+    'DEFAULT_PAGINATION_CLASS': 'meiduo_mall.utils.pagination.StandardResultsSetPagination',
+
 }
 #指明token的有效期
 JWT_AUTH = {

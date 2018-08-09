@@ -1,6 +1,9 @@
 import re
 from django_redis import get_redis_connection
 from rest_framework import serializers
+
+from goods.models import SKU
+from . import constants
 from .models import User
 from rest_framework_jwt.settings import api_settings
 from celery_tasks.email.tasks import send_verify_email
@@ -90,9 +93,31 @@ class EmailSerializer(serializers.ModelSerializer):
         send_verify_email.delay(email,verify_url)
         return instance
 
+class AddUserBrowsingHistorySerializer(serializers.Serializer):
+    sku_id = serializers.IntegerField(label='商品sku编号',min_value=0)
+    def validate_sku_id(self,attrs):
+        try:
+            SKU.objects.get(id = attrs)
+        except SKU.DoesNotExist:
+            raise serializers.ValidationError('商品不存在')
+        return attrs
 
+    def create(self, validated_data):
+        sku_id = validated_data['sku_id']
+        user_id = self.context['request'].user.id
+        redis_conn = get_redis_connection('history')
+        p1 = redis_conn.pipeline()
+        p1.lrem('history_%s' %user_id,0,sku_id)
+        p1.lpush('history_%s' %user_id,sku_id)
+        #ltrim(key,起始位置，结束位置)  切割列表
+        p1.ltrim('history_%s' %user_id,0,constants.USER_BROWSING_HISTORY_COUNTS_LIMIT-1)
+        p1.execute()
+        return validated_data
 
-
+class SKUSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SKU
+        fields = ['id','name','price','default_image_url','comments']
 
 
 
