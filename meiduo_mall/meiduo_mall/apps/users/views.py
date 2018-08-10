@@ -12,10 +12,11 @@ from rest_framework.viewsets import ModelViewSet
 
 from areas.serializers import AddressTitleSerializer, UserAddressSerializer
 from goods.models import SKU
+from goods.serializers import SKUSerializer
 from . import constants
 from .models import User, Address
-from .serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer, AddUserBrowsingHistorySerializer, \
-    SKUSerializer
+from .serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer, AddUserBrowsingHistorySerializer
+
 from rest_framework.status import HTTP_201_CREATED
 
 
