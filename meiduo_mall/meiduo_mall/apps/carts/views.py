@@ -29,7 +29,7 @@ class CartView(APIView):
             user = None
 
         if user is not None and user.is_authenticated:
-            redis_conn = get_redis_connection('carts')
+            redis_conn = get_redis_connection('cart')
             p1 = redis_conn.pipeline()
             p1.hincrby('cart_%s' %user.id,sku_id,count)
             if selected:
@@ -57,13 +57,14 @@ class CartView(APIView):
         except:
             user = None
         if user is not None and user.is_authenticated:
-            redis_conn = get_redis_connection('carts')
+            redis_conn = get_redis_connection('cart')
             redis_cart = redis_conn.hgetall('cart_%s' %user.id)
+            print(redis_cart)
             redis_cart_selected = redis_conn.smembers('cart_select_%s' %user.id)
             cart = {}
-            for sku_id,count in redis_cart:
-                cart[sku_id] = {
-                    'count':count,
+            for sku_id,count in redis_cart.items():
+                cart[int(sku_id)] = {
+                    'count':int(count),
                     'selected':sku_id in redis_cart_selected
                 }
         else:
