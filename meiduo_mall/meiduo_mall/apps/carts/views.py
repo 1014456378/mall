@@ -161,7 +161,7 @@ class CartSelectAllView(APIView):
             user = request.user
         except:
             user = None
-        if user is not None and user.is_authenticated:
+        if user is not None:
             redis_conn = get_redis_connection('cart')
             cart_all = redis_conn.hgetall('cart_%s' %user.id)
             if selected:

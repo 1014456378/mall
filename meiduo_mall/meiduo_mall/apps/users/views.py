@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from areas.serializers import AddressTitleSerializer, UserAddressSerializer
+from carts.utils import merge_cart_cookie_to_redis
 from goods.models import SKU
 from goods.serializers import SKUSerializer
 from . import constants
@@ -18,7 +19,7 @@ from .models import User, Address
 from .serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer, AddUserBrowsingHistorySerializer
 
 from rest_framework.status import HTTP_201_CREATED
-
+from rest_framework_jwt.views import ObtainJSONWebToken
 
 
 #判断用户名是否存在
@@ -85,14 +86,15 @@ class AddressViewSet(ModelViewSet):
     serializer_class = UserAddressSerializer
     permissions = [IsAuthenticated]
     def get_queryset(self):
-        return Address.objects.filter(user = self.request.user)
+        return Address.objects.filter(user = self.request.user,is_deleted=False)
+        # return self.request.user.addresses.filter(is_deleted=False)
 
     # def get_queryset(self):
     #     return self.request.user.addresses.filter(is_deleted=False)
     #GET /addresses/
     def list(self, request, *args, **kwargs):
         quert_set = self.get_queryset()
-        serializer = self.get_serializer(quert_set)
+        serializer = self.get_serializer(quert_set,many = True)
         user = self.request.user
         return Response({
             'user_id':user.id,
@@ -156,4 +158,19 @@ class UserBrowsingHistoryView(CreateAPIView):
         s = SKUSerializer(skus,many = True)
         return Response(s.data)
 
+class UserAuthorizeView(ObtainJSONWebToken):
+    """
+    用户认证
+    """
+    def post(self, request, *args, **kwargs):
+        # 调用父类的方法，获取drf jwt扩展默认的认证用户处理结果
+        response = super().post(request, *args, **kwargs)
 
+        # 仿照drf jwt扩展对于用户登录的认证方式，判断用户是否认证登录成功
+        # 如果用户登录认证成功，则合并购物车
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data.get('user')
+            response = merge_cart_cookie_to_redis(request, user, response)
+
+        return response

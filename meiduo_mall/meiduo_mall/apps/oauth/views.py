@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework_jwt.settings import api_settings
 from itsdangerous import TimedJSONWebSignatureSerializer as TJWSSerializer
 
+from carts.utils import merge_cart_cookie_to_redis
 from .serializers import OAuthQQUserSerializer
 from .models import OAuthQQUser
 from oauth.exceptions import QQAPIError
@@ -52,6 +53,12 @@ class QQAuthUserView(CreateAPIView):
                 'user_id': qq_user.user.id,
                 'username': qq_user.user.username
             })
+            response = merge_cart_cookie_to_redis(request, qq_user.user, response)
             return response
 
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        # 合并购物车
+        response = merge_cart_cookie_to_redis(request, self.user, response)
+        return response
 
