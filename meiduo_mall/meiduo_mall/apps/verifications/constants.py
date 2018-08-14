@@ -1,0 +1,8 @@
+#图片验证码的有效时间，秒
+IMAGE_CODE_REDIS_EXPIRES = 60
+#短信验证码有效时间，秒
+SMS_CODE_REDIS_EXPIRES = 5*60
+#云通讯发短信模板
+SMS_CODE_TEMP_ID = 1
+#发送短信验证码的间隔
+SEND_SMS_CODE_INTERVAL = 60
